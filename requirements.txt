@@ -1,0 +1,7 @@
+streamlit
+crewai>=0.76
+crewai-tools>=0.13
+python-dotenv>=1.0
+yt-dlp
+youtube-transcript-api
+litellm
