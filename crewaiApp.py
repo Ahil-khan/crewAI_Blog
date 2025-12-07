@@ -216,14 +216,27 @@ def run_crew(channel_videos_url_in: str, topic: str,
         share_crew=True,
     )
 
+    #  Wrap the retry loop in a spinner so users see progress
     with st.spinner("Running agents…"):
-        return crew.kickoff(inputs={
-            "topic": topic,
-            "expand": expand_queries,
-            "max_variants": max_variants,
-            "fallback_limit": fallback_limit,
-            "fallback_snippets": fallback_snippets
-        })
+        last_error = None
+        for attempt in range(3):  # retry up to 3 times
+            try:
+                return crew.kickoff(inputs={
+                    "topic": topic,
+                    "expand": expand_queries,
+                    "max_variants": max_variants,
+                    "fallback_limit": fallback_limit,
+                    "fallback_snippets": fallback_snippets
+                })
+            except RateLimitError as e:
+                last_error = e
+                wait = 2 ** attempt  # exponential backoff: 1s, 2s, 4s
+                st.warning(f"⚠️ Rate limit hit. Retrying in {wait} seconds...")
+                time.sleep(wait)
+
+        # If all retries fail, re-raise the last error
+        raise last_error or RateLimitError("Exceeded maximum retry attempts due to rate limits.")
+    
 
 
 # ---------------------
@@ -323,3 +336,4 @@ with st.expander("Setup & Notes"):
           fetches a few transcript lines with timestamps. This catches **brand-new uploads**.
         """
     )
+
