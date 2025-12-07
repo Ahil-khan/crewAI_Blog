@@ -9,6 +9,7 @@ from crewai import Agent, Task, Crew, Process, LLM
 from crewai.tools import BaseTool
 from yt_dlp import YoutubeDL
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
+from litellm.exceptions import RateLimitError
 
 # ── Setup ───────────────────────────────────────────────────────────────
 st.set_page_config(page_title="CrewAI + YouTube Blog (Groq)", page_icon="🎬", layout="wide")
@@ -336,4 +337,5 @@ with st.expander("Setup & Notes"):
           fetches a few transcript lines with timestamps. This catches **brand-new uploads**.
         """
     )
+
 
